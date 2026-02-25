@@ -1,0 +1,106 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: signature-generator
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: signature-env
+  namespace: signature-generator
+type: Opaque
+data:
+  AZURE_TENANT_ID: MTAxYjY5ZGItZTlkNC00YzkxLWE2M2QtYzA4MThjNjhhMzMx
+  AZURE_CLIENT_ID: MjQ1NzVjZDktYmU1ZS00MWE2LWI5ZmEtMjUzMzRiMDQwMWE1
+  AZURE_CLIENT_SECRET: RmxhOFF+LllvSGVtNC1uRm5HMVNFR1E2ekttVGZCWUU2Zll4NGF3NA==
+  PORT: MzAwMA==
+  COMPANY_NAME: V2lyZVN0YXIgTmV0d29ya3M=
+  COMPANY_WEBSITE: aHR0cHM6Ly93aXJlc3Rhci5uZXQ=
+  SIGNATURE_ACCENT_COLOR: IzUwMDAwMA==
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: signature
+  namespace: signature-generator
+  labels:
+    app: signature
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: signature
+  template:
+    metadata:
+      labels:
+        app: signature
+    spec:
+      imagePullSecrets:
+        - name: ghcr-token
+      containers:
+        - name: signature
+          image: ghcr.io/wirestar-networks/signature:latest
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - secretRef:
+                name: signature-env
+                optional: false
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: signature
+  namespace: signature-generator
+spec:
+  type: ClusterIP
+  selector:
+    app: signature
+  ports:
+    - port: 80
+      targetPort: 3000
+      protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: signature
+  namespace: signature-generator
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: signature.wirestar.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: signature
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - signature.wirestar.org
+      secretName: signature-tls
