@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Environment variables — contains Azure credentials, never commit
+.env
+
+# Debug output — contains real employee data, never commit
+entra_debug.json
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor folders
+.vscode/
+.idea/
+
+# Build output
+dist/
+build/

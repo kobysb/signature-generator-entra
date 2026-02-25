@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Signature Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface-2: #22263a;
+      --border: #2e3347;
+      --accent: #0078D4;
+      --accent-dim: rgba(0, 120, 212, 0.15);
+      --text: #e8eaf0;
+      --text-muted: #7b80a0;
+      --text-faint: #3d4262;
+      --green: #22c55e;
+      --red: #ef4444;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    /* ── Layout ── */
+    .layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      grid-template-rows: 64px 1fr;
+      min-height: 100vh;
+    }
+
+    /* ── Topbar ── */
+    .topbar {
+      grid-column: 1 / -1;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 28px;
+      gap: 12px;
+    }
+
+    .topbar-logo {
+      width: 30px;
+      height: 30px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .topbar-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .topbar-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .topbar-sep {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+      margin: 0 4px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--text-faint);
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+    .status-dot.connected { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .status-dot.error { background: var(--red); }
+
+    .status-label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-header {
+      padding: 20px 20px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    /* Search input */
+    .search-wrap {
+      position: relative;
+    }
+    .search-wrap svg {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    #search {
+      width: 100%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      padding: 8px 10px 8px 34px;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    #search:focus { border-color: var(--accent); }
+    #search::placeholder { color: var(--text-muted); }
+
+    /* Employee list */
+    .employee-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+    }
+
+    .employee-list::-webkit-scrollbar { width: 4px; }
+    .employee-list::-webkit-scrollbar-track { background: transparent; }
+    .employee-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .employee-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.1s;
+      border: 1px solid transparent;
+    }
+    .employee-item:hover { background: var(--surface-2); }
+    .employee-item.active {
+      background: var(--accent-dim);
+      border-color: rgba(0, 120, 212, 0.4);
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+    }
+
+    .avatar-placeholder {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .employee-info { min-width: 0; }
+    .employee-name {
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text);
+    }
+    .employee-title {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .list-empty {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .list-loading {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-bottom: 10px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Main panel ── */
+    .main {
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 40px;
+      overflow-y: auto;
+    }
+
+    /* Empty state */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+      gap: 12px;
+      color: var(--text-muted);
+      animation: fadeIn 0.4s ease;
+    }
+
+    .empty-icon {
+      font-size: 40px;
+      opacity: 0.4;
+      margin-bottom: 4px;
+    }
+
+    .empty-state h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .empty-state p { font-size: 14px; max-width: 280px; line-height: 1.6; }
+
+    /* Detail card */
+    .detail-card {
+      width: 100%;
+      max-width: 640px;
+      display: none;
+      flex-direction: column;
+      gap: 24px;
+      animation: fadeIn 0.25s ease;
+    }
+    .detail-card.visible { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .card-body { padding: 20px 24px; }
+
+    /* Employee profile preview */
+    .profile-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .profile-photo {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--accent);
+      flex-shrink: 0;
+    }
+    .profile-initials {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--accent-dim);
+      border: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .profile-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+    .profile-title {
+      font-size: 14px;
+      color: var(--accent);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+    .profile-dept {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    /* Fields grid */
+    .fields-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .field-item { display: flex; flex-direction: column; gap: 3px; }
+
+    .field-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .field-value {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      color: var(--text);
+    }
+    .field-value.empty { color: var(--text-faint); font-style: italic; font-family: 'DM Sans', sans-serif; }
+
+    /* Generate button */
+    .generate-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--accent);
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s, transform 0.1s;
+      letter-spacing: -0.01em;
+    }
+    .generate-btn:hover { background: #005fa3; }
+    .generate-btn:active { transform: scale(0.99); }
+    .generate-btn:disabled {
+      background: var(--surface-2);
+      color: var(--text-muted);
+      cursor: not-allowed;
+    }
+
+    /* Count badge */
+    .count-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 2px 7px;
+      border-radius: 20px;
+      margin-left: auto;
+    }
+
+    /* Error banner */
+    .error-banner {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 13px;
+      color: #fca5a5;
+      display: none;
+    }
+    .error-banner.visible { display: block; }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ── Topbar ── -->
+  <header class="topbar">
+    <div class="topbar-logo">✉️</div>
+    <span class="topbar-title">Signature Generator</span>
+    <div class="topbar-sep"></div>
+    <span class="topbar-sub">Powered by Rippling</span>
+    <div class="status-dot" id="statusDot"></div>
+    <span class="status-label" id="statusLabel">Connecting…</span>
+  </header>
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+
+    <div class="sidebar-header">
+      <div style="display:flex; align-items:center; margin-bottom:10px;">
+        <span class="sidebar-label" style="margin-bottom:0;">Employees</span>
+        <span class="count-badge" id="countBadge">—</span>
+      </div>
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="search" placeholder="Search by name or title…" />
+      </div>
+    </div>
+
+    <div class="employee-list" id="employeeList">
+      <div class="list-loading">
+        <div><div class="spinner"></div></div>
+        Loading employees…
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── Main panel ── -->
+  <main class="main">
+
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">👈</div>
+      <h2>Select an employee</h2>
+      <p>Choose someone from the list on the left to preview their signature fields and generate their Outlook signature.</p>
+    </div>
+
+    <div class="detail-card" id="detailCard">
+
+      <!-- Error banner -->
+      <div class="error-banner" id="errorBanner"></div>
+
+      <!-- Profile preview card -->
+      <div class="card">
+        <div class="card-header">Employee Preview</div>
+        <div class="card-body">
+          <div class="profile-row">
+            <div id="profilePhoto"></div>
+            <div>
+              <div class="profile-name" id="profileName">—</div>
+              <div class="profile-title" id="profileTitle"></div>
+              <div class="profile-dept" id="profileDept"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Signature fields card -->
+      <div class="card">
+        <div class="card-header">Signature Fields</div>
+        <div class="card-body">
+          <div class="fields-grid">
+            <div class="field-item">
+              <span class="field-label">First Name</span>
+              <span class="field-value" id="fFirstName">—</span>
+            </div>
+            <div class="field-item">
+              <span class="field-label">Last Name</span>
+              <span class="field-value" id="fLastName">—</span>
+            </div>
+            <div class="field-item">
+              <span class="field-label">Job Title</span>
+              <span class="field-value" id="fJobTitle">—</span>
+            </div>
+            <div class="field-item">
+              <span class="field-label">Department</span>
+              <span class="field-value" id="fDepartment">—</span>
+            </div>
+            <div class="field-item">
+              <span class="field-label">Email Address</span>
+              <span class="field-value" id="fEmail">—</span>
+            </div>
+            <div class="field-item">
+              <span class="field-label">Phone Number</span>
+              <span class="field-value" id="fPhone">—</span>
+            </div>
+            <div class="field-item">
+              <span class="field-label">Profile Photo</span>
+              <span class="field-value" id="fPhoto">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Generate button -->
+      <button class="generate-btn" id="generateBtn" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+        </svg>
+        Generate Signature
+      </button>
+
+    </div>
+
+  </main>
+
+</div>
+
+<script>
+  // ─────────────────────────────────────────────
+  // State
+  // ─────────────────────────────────────────────
+
+  let allEmployees = [];
+  let selectedEmployee = null;
+
+  // ─────────────────────────────────────────────
+  // DOM refs
+  // ─────────────────────────────────────────────
+
+  const $list       = document.getElementById('employeeList');
+  const $search     = document.getElementById('search');
+  const $count      = document.getElementById('countBadge');
+  const $statusDot  = document.getElementById('statusDot');
+  const $statusLbl  = document.getElementById('statusLabel');
+  const $emptyState = document.getElementById('emptyState');
+  const $detailCard = document.getElementById('detailCard');
+  const $errBanner  = document.getElementById('errorBanner');
+  const $genBtn     = document.getElementById('generateBtn');
+
+  // ─────────────────────────────────────────────
+  // Boot
+  // ─────────────────────────────────────────────
+
+  async function init() {
+    try {
+      const res = await fetch('/api/employees');
+      const data = await res.json();
+
+      if (!data.success) throw new Error(data.error || 'Unknown error');
+
+      allEmployees = data.employees;
+      $count.textContent = allEmployees.length;
+      $statusDot.className = 'status-dot connected';
+      $statusLbl.textContent = 'Rippling connected';
+      renderList(allEmployees);
+    } catch (err) {
+      $statusDot.className = 'status-dot error';
+      $statusLbl.textContent = 'Connection failed';
+      $list.innerHTML = `<div class="list-empty">⚠️ Failed to load employees.<br/><small style="color:var(--text-faint)">${err.message}</small></div>`;
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // Render employee list
+  // ─────────────────────────────────────────────
+
+  function renderList(employees) {
+    if (!employees.length) {
+      $list.innerHTML = '<div class="list-empty">No employees match your search.</div>';
+      return;
+    }
+
+    $list.innerHTML = employees.map(emp => {
+      const initials = `${emp.firstName?.[0] || ''}${emp.lastName?.[0] || ''}`.toUpperCase();
+      const photoHtml = emp.photoUrl
+        ? `<img class="avatar" src="${escHtml(emp.photoUrl)}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><div class="avatar-placeholder" style="display:none">${initials}</div>`
+        : `<div class="avatar-placeholder">${initials}</div>`;
+
+      return `
+        <div class="employee-item" data-id="${emp.id}" onclick="selectEmployee('${emp.id}')">
+          ${photoHtml}
+          <div class="employee-info">
+            <div class="employee-name">${escHtml(emp.firstName)} ${escHtml(emp.lastName)}</div>
+            <div class="employee-title">${escHtml(emp.jobTitle || emp.department || '')}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ─────────────────────────────────────────────
+  // Select an employee
+  // ─────────────────────────────────────────────
+
+  async function selectEmployee(id) {
+    // Highlight in sidebar
+    document.querySelectorAll('.employee-item').forEach(el => {
+      el.classList.toggle('active', el.dataset.id === id);
+    });
+
+    // Show detail pane
+    $emptyState.style.display = 'none';
+    $detailCard.classList.add('visible');
+    $errBanner.classList.remove('visible');
+    $genBtn.disabled = true;
+    $genBtn.textContent = 'Loading…';
+
+    try {
+      const res = await fetch(`/api/employees/${id}`);
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'Unknown error');
+
+      selectedEmployee = data.employee;
+      populateDetail(data.employee);
+      $genBtn.disabled = false;
+      $genBtn.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+        </svg>
+        Generate Signature`;
+    } catch (err) {
+      $errBanner.textContent = `⚠️ Could not load employee: ${err.message}`;
+      $errBanner.classList.add('visible');
+      $genBtn.innerHTML = 'Generate Signature';
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // Populate detail card fields
+  // ─────────────────────────────────────────────
+
+  function populateDetail(emp) {
+    const fullName = `${emp.firstName} ${emp.lastName}`.trim();
+
+    // Profile photo or initials
+    const initials = `${emp.firstName?.[0] || ''}${emp.lastName?.[0] || ''}`.toUpperCase();
+    const $photo = document.getElementById('profilePhoto');
+    if (emp.photoUrl) {
+      $photo.innerHTML = `<img class="profile-photo" src="${escHtml(emp.photoUrl)}" alt="${escHtml(fullName)}" onerror="this.outerHTML='<div class=\\'profile-initials\\'>${initials}</div>'" />`;
+    } else {
+      $photo.innerHTML = `<div class="profile-initials">${initials}</div>`;
+    }
+
+    document.getElementById('profileName').textContent  = fullName || '—';
+    document.getElementById('profileTitle').textContent = emp.jobTitle || '';
+    document.getElementById('profileDept').textContent  = emp.department || '';
+
+    setField('fFirstName',  emp.firstName);
+    setField('fLastName',   emp.lastName);
+    setField('fJobTitle',   emp.jobTitle);
+    setField('fDepartment', emp.department);
+    setField('fEmail',      emp.emailAddress);
+    setField('fPhone',      emp.phoneNumber);
+
+    const photoEl = document.getElementById('fPhoto');
+    if (emp.photoUrl) {
+      photoEl.textContent = '✓ Found';
+      photoEl.className = 'field-value';
+      photoEl.style.color = 'var(--green)';
+    } else {
+      photoEl.textContent = 'No photo on file';
+      photoEl.className = 'field-value empty';
+      photoEl.style.color = '';
+    }
+  }
+
+  function setField(id, value) {
+    const el = document.getElementById(id);
+    if (value) {
+      el.textContent = value;
+      el.className = 'field-value';
+    } else {
+      el.textContent = 'Not set';
+      el.className = 'field-value empty';
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // Search filtering
+  // ─────────────────────────────────────────────
+
+  $search.addEventListener('input', () => {
+    const q = $search.value.toLowerCase().trim();
+    if (!q) {
+      renderList(allEmployees);
+      return;
+    }
+    const filtered = allEmployees.filter(e => {
+      const name = `${e.firstName} ${e.lastName}`.toLowerCase();
+      return name.includes(q) || (e.jobTitle || '').toLowerCase().includes(q) || (e.department || '').toLowerCase().includes(q);
+    });
+    renderList(filtered);
+
+    // Re-mark active
+    if (selectedEmployee) {
+      const el = $list.querySelector(`[data-id="${selectedEmployee.id}"]`);
+      if (el) el.classList.add('active');
+    }
+  });
+
+  // ─────────────────────────────────────────────
+  // Generate button
+  // ─────────────────────────────────────────────
+
+  $genBtn.addEventListener('click', () => {
+    if (!selectedEmployee) return;
+    window.open(`/signature/${selectedEmployee.id}`, '_blank');
+  });
+
+  // ─────────────────────────────────────────────
+  // Util
+  // ─────────────────────────────────────────────
+
+  function escHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ─────────────────────────────────────────────
+  // Go
+  // ─────────────────────────────────────────────
+  init();
+</script>
+
+</body>
+</html>

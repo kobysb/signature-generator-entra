@@ -1,0 +1,118 @@
+<!--
+  WIRESTAR NETWORKS — OUTLOOK EMAIL SIGNATURE TEMPLATE
+  ─────────────────────────────────────────────────────────────────────────────
+  Based on the existing WireStar signature format.
+
+  PLACEHOLDERS (replaced by server.js at generation time):
+    {{FULL_NAME}}       → e.g. "Jane Smith"
+    {{FIRST_NAME}}      → e.g. "Jane"
+    {{LAST_NAME}}       → e.g. "Smith"
+    {{JOB_TITLE}}       → e.g. "Senior Engineer"
+    {{EMAIL_ADDRESS}}   → e.g. "jane@wirestar.net"
+    {{PHONE_NUMBER}}    → e.g. "(979) 555-1234"  (direct/cell from Rippling)
+    {{PHOTO_SRC}}       → base64 data URI of profile photo
+  ─────────────────────────────────────────────────────────────────────────────
+-->
+
+<table style="padding:0px;margin:10px 0;border:none">
+  <tbody>
+    <tr>
+
+      <!-- Profile photo -->
+      <td style="vertical-align:top;padding:10px 7px 0px 0px;width:1px">
+        <br />
+        <img
+          alt="{{FULL_NAME}}"
+          height="64"
+          src="{{PHOTO_SRC}}"
+          style="border-radius:50%;"
+          width="64"
+        />
+      </td>
+
+      <!-- Main info column -->
+      <td style="padding:7px 0px 0px 10px;font-family:'times new roman','times',serif;font-size:12px;line-height:14px;color:#500000;width:488px">
+
+        <!-- Name, title, logo -->
+        <div style="margin-bottom:10px">
+          <span style="font-family:'segoe ui','frutiger','dejavu sans','helvetica neue','arial',sans-serif">
+            <span style="font-size:16px">Sincerely,</span><br /><br />
+
+            <span style="font-size:16px">
+              <strong><span style="line-height:17px;color:#500000">{{FIRST_NAME}}</span></strong>&nbsp;<strong>{{LAST_NAME}}</strong><br />
+              <span style="color:#7f8c8d"><em>{{JOB_TITLE}}</em></span>
+            </span><br /><br />
+
+            <img
+              alt="WIRESTAR NETWORKS"
+              height="76"
+              src="https://storage.googleapis.com/signaturesatori/customer-C01nzfcwg/images/xLpOC.gif"
+              width="200"
+            />
+          </span>
+        </div>
+
+        <!-- Contact info -->
+        <div style="margin-bottom:10px">
+          <span style="font-family:'segoe ui','frutiger','dejavu sans','helvetica neue','arial',sans-serif">
+
+            <span style="font-size:14px">
+              <strong><a href="mailto:{{EMAIL_ADDRESS}}" style="color:#500000;text-decoration:none">{{EMAIL_ADDRESS}}</a></strong>
+            </span><br /><br />
+
+            <span style="font-size:14px">
+              <span style="color:#500000"><strong>Direct:</strong>&nbsp;</span>
+              <a href="tel:{{PHONE_NUMBER}}" style="color:#500000;text-decoration:none">{{PHONE_NUMBER}}</a>
+            </span><br />
+
+            <span style="font-size:14px">
+              <strong>Office:&nbsp;</strong>
+              <a href="tel:+19797219000" style="color:#500000;text-decoration:none">(979) 721-9000</a>
+            </span><br /><br />
+
+            <span style="font-size:13px">
+              <strong>WireStar Networks</strong><br />
+              4156 Hwy 6<br />
+              College Station, Texas 77845
+            </span><br /><br />
+
+            <a href="https://wirestar.net/" style="color:#500000;text-decoration:none">
+              <span style="font-size:14px;">www.wirestar.net</span>
+            </a>
+
+          </span>
+        </div>
+
+      </td>
+    </tr>
+
+    <!-- Social icons row -->
+    <tr>
+      <td style="vertical-align:top;padding:10px 7px 0px 0px;width:1px">&nbsp;</td>
+      <td style="padding:7px 0px 0px 10px;font-family:'segoe ui','frutiger','dejavu sans','helvetica neue','arial',sans-serif;font-size:13px;color:#500000;width:488px">
+
+        <a href="https://www.youtube.com/@WireStarNetworks" style="color:#500000;text-decoration:none">
+          <img alt="YouTube" height="24" width="24" src="https://storage.googleapis.com/signaturesatori/icons/cf/24/660000/youtube.png" />
+        </a>&#8202;
+
+        <a href="https://www.facebook.com/wirestar.net/" style="color:#500000;text-decoration:none">
+          <img alt="Facebook" height="24" width="24" src="https://storage.googleapis.com/signaturesatori/icons/cf/24/660000/facebook.png" />
+        </a>&#8202;
+
+        <a href="https://www.google.com/maps/place/WireStar+Networks/@30.5869435,-96.2884305,17z" style="color:#500000;text-decoration:none">
+          <img alt="Google Maps" height="24" width="24" src="https://storage.googleapis.com/signaturesatori/icons/cf/24/660000/googleplus.png" />
+        </a>&#8202;
+
+        <a href="https://www.linkedin.com/company/wirestar" style="color:#500000;text-decoration:none">
+          <img alt="LinkedIn" height="24" width="24" src="https://storage.googleapis.com/signaturesatori/icons/cf/24/660000/linkedin.png" />
+        </a>&#8202;
+
+        <a href="https://twitter.com/wirestarnetwork" style="color:#500000;text-decoration:none">
+          <img alt="Twitter" height="24" width="24" src="https://storage.googleapis.com/signaturesatori/icons/cf/24/660000/twitter.png" />
+        </a>
+
+      </td>
+    </tr>
+
+  </tbody>
+</table>
