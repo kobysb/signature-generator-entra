@@ -1,6 +1,6 @@
 # Outlook Signature Generator — Entra ID Edition
 
-pulls employee data from **Microsoft Entra ID** via the Microsoft Graph API instead of Rippling.
+Pulls employee data from **Microsoft Entra ID** via the Microsoft Graph API.
 
 ---
 
