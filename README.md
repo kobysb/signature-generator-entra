@@ -1,6 +1,6 @@
 # Outlook Signature Generator — Entra ID Edition
 
-Same signature generator app, but pulls employee data from **Microsoft Entra ID** via the Microsoft Graph API instead of Rippling.
+pulls employee data from **Microsoft Entra ID** via the Microsoft Graph API instead of Rippling.
 
 ---
 
@@ -26,7 +26,7 @@ On the app overview page, copy:
 2. Click **New client secret**
 3. Give it a description and expiry (24 months recommended)
 4. Click **Add**
-5. ⚠️ Copy the **Value** immediately — it's only shown once
+5. Copy the **Value** immediately — it's only shown once
 
 This is your `AZURE_CLIENT_SECRET`
 
@@ -100,7 +100,7 @@ Open **http://localhost:3000**
 | Job title | `jobTitle` |
 | Department | `department` |
 | Email | `mail` → fallback `userPrincipalName` |
-| Phone | `mobilePhone` → fallback `businessPhones[0]` |
+| Phone | `businessPhones[0]` → fallback `mobilePhone` |
 | Active/disabled | `accountEnabled` |
 | Profile photo | `/users/{id}/photo/$value` |
 
@@ -121,11 +121,3 @@ Open **http://localhost:3000**
 ```
 
 ---
-
-## Deploying to Azure App Service
-
-1. Push to GitHub (`.env` is in `.gitignore` — never committed)
-2. Create an **Azure App Service** (Node 20 LTS)
-3. Under **Configuration → Application Settings**, add your three Azure env vars
-4. Connect your GitHub repo under **Deployment Center**
-5. App will be live at `https://your-app.azurewebsites.net`

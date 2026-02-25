@@ -16,16 +16,16 @@
     }
 
     :root {
-      --bg: #0f1117;
-      --surface: #1a1d27;
-      --surface-2: #22263a;
-      --border: #2e3347;
-      --accent: #0078D4;
-      --accent-dim: rgba(0, 120, 212, 0.15);
-      --text: #e8eaf0;
-      --text-muted: #7b80a0;
-      --text-faint: #3d4262;
-      --green: #22c55e;
+      --bg: #f5f5f5;
+      --surface: #ffffff;
+      --surface-2: #f0f0f0;
+      --border: #e0e0e0;
+      --accent: #500000;
+      --accent-dim: rgba(80, 0, 0, 0.08);
+      --text: #1a1a1a;
+      --text-muted: #666666;
+      --text-faint: #bbbbbb;
+      --green: #16a34a;
       --red: #ef4444;
     }
 
@@ -41,7 +41,8 @@
       display: grid;
       grid-template-columns: 340px 1fr;
       grid-template-rows: 64px 1fr;
-      min-height: 100vh;
+      height: 100vh;
+      overflow: hidden;
     }
 
     /* ── Topbar ── */
@@ -109,6 +110,7 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      height: 100%;
     }
 
     .sidebar-header {
@@ -176,7 +178,7 @@
     .employee-item:hover { background: var(--surface-2); }
     .employee-item.active {
       background: var(--accent-dim);
-      border-color: rgba(0, 120, 212, 0.4);
+      border-color: rgba(80, 0, 0, 0.4);
     }
 
     .avatar {
@@ -256,6 +258,7 @@
       justify-content: flex-start;
       padding: 40px;
       overflow-y: auto;
+      height: 100%;
     }
 
     /* Empty state */
@@ -410,7 +413,7 @@
       transition: background 0.15s, transform 0.1s;
       letter-spacing: -0.01em;
     }
-    .generate-btn:hover { background: #005fa3; }
+    .generate-btn:hover { background: #3a0000; }
     .generate-btn:active { transform: scale(0.99); }
     .generate-btn:disabled {
       background: var(--surface-2);
@@ -452,7 +455,7 @@
     <div class="topbar-logo">✉️</div>
     <span class="topbar-title">Signature Generator</span>
     <div class="topbar-sep"></div>
-    <span class="topbar-sub">Powered by Rippling</span>
+    <span class="topbar-sub">Built for WireStar Networks</span>
     <div class="status-dot" id="statusDot"></div>
     <span class="status-label" id="statusLabel">Connecting…</span>
   </header>
@@ -598,7 +601,7 @@
       allEmployees = data.employees;
       $count.textContent = allEmployees.length;
       $statusDot.className = 'status-dot connected';
-      $statusLbl.textContent = 'Rippling connected';
+      $statusLbl.textContent = 'Entra ID connected';
       renderList(allEmployees);
     } catch (err) {
       $statusDot.className = 'status-dot error';

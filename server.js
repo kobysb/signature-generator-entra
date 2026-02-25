@@ -114,7 +114,7 @@ function mapEmployee(raw) {
     firstName: raw.givenName || "",
     lastName: raw.surname || "",
     jobTitle: raw.jobTitle || "",
-    phoneNumber: raw.mobilePhone || raw.businessPhones?.[0] || "",
+    phoneNumber: raw.businessPhones?.[0] || raw.mobilePhone || "",
     emailAddress: raw.mail || raw.userPrincipalName || "",
     department: raw.department || "",
     // accountEnabled: false means the account is disabled/terminated
@@ -312,8 +312,6 @@ function formatPhoneNumber(raw) {
 // ─────────────────────────────────────────────
 
 function buildSignaturePage(signatureHtml, fullName, email) {
-  const escaped = JSON.stringify(signatureHtml);
-
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -330,16 +328,22 @@ function buildSignaturePage(signatureHtml, fullName, email) {
     .signature-card { background: #fff; border-radius: 12px; padding: 40px; width: 100%; max-width: 760px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
     .actions { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
     .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s ease; text-decoration: none; }
-    .btn-primary { background: #0078D4; color: white; }
-    .btn-primary:hover { background: #005fa3; }
+    .btn-primary { background: #500000; color: white; }
+    .btn-primary:hover { background: #3a0000; }
+    .btn-success { background: #16a34a; color: white; }
     .btn-secondary { background: #f0f2f5; color: #1a1a2e; }
     .btn-secondary:hover { background: #e2e5ea; }
     .divider { height: 1px; background: #eee; margin: 28px 0; }
     .label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #999; margin-bottom: 16px; }
-    .instructions { margin-top: 28px; padding: 16px 20px; background: #f8f9ff; border-left: 3px solid #0078D4; border-radius: 0 8px 8px 0; font-size: 13px; color: #444; line-height: 1.7; }
+    .instructions { margin-top: 28px; padding: 16px 20px; background: #f8f9ff; border-left: 3px solid #500000; border-radius: 0 8px 8px 0; font-size: 13px; color: #444; line-height: 1.9; }
     .instructions strong { color: #1a1a2e; }
+    .instructions ol { padding-left: 18px; margin-top: 6px; }
+    .instructions ol li { margin-bottom: 4px; }
+    .instructions .section { margin-bottom: 16px; }
+    .instructions .section:last-child { margin-bottom: 0; }
     .toast { position: fixed; bottom: 30px; right: 30px; background: #1a1a2e; color: white; padding: 12px 20px; border-radius: 8px; font-size: 14px; opacity: 0; transform: translateY(8px); transition: all 0.25s ease; pointer-events: none; }
     .toast.show { opacity: 1; transform: translateY(0); }
+    #sig-preview { user-select: all; cursor: default; }
   </style>
 </head>
 <body>
@@ -348,39 +352,80 @@ function buildSignaturePage(signatureHtml, fullName, email) {
     <p>${fullName} &mdash; ${email}</p>
   </div>
   <div class="signature-card">
-    <div class="label">Preview</div>
+    <div class="label">Your Signature — Click to select, then copy</div>
     <div id="sig-preview">${signatureHtml}</div>
     <div class="divider"></div>
     <div class="actions">
-      <button class="btn btn-primary" onclick="copyHtml()">📋 Copy HTML to Clipboard</button>
+      <button class="btn btn-primary" id="copyBtn" onclick="copySignature()">Copy to Clipboard</button>
       <button class="btn btn-secondary" onclick="window.close()">✕ Close</button>
     </div>
     <div class="instructions">
-      <strong>How to install in Outlook (Desktop):</strong><br/>
-      1. Open Outlook → File → Options → Mail → <strong>Signatures</strong><br/>
-      2. Click <strong>New</strong>, give it a name, then click <strong>OK</strong><br/>
-      3. In the signature editor, switch to HTML source mode and paste<br/><br/>
-      <strong>How to install in Outlook Web (OWA):</strong><br/>
-      1. Click the gear icon → <strong>View all Outlook settings</strong> → Mail → <strong>Compose and reply</strong><br/>
-      2. Under "Email signature", click the <strong>&lt;/&gt;</strong> HTML toggle<br/>
-      3. Paste the copied HTML and click <strong>Save</strong>
+      <div class="section">
+        <strong>How to add your signature in Outlook Desktop:</strong>
+        <ol>
+          <li>Click <strong>Copy to Clipboard</strong> above</li>
+          <li>Open Outlook and go to <strong>File → Options → Mail → Signatures</strong></li>
+          <li>Click <strong>New</strong> and give your signature a name</li>
+          <li>Click inside the signature editor box and press <strong>Ctrl + V</strong> to paste</li>
+          <li>Click <strong>OK</strong> to save</li>
+        </ol>
+      </div>
+      <div class="section">
+        <strong>How to add your signature in Outlook Web:</strong>
+        <ol>
+          <li>Click <strong>Copy to Clipboard</strong> above</li>
+          <li>In Outlook, click the <strong>gear icon</strong> next to your profile photo in the top right</li>
+          <li>Go to <strong>Account → Signatures</strong></li>
+          <li>Click <strong>New signature</strong>, give it a name, then press <strong>Ctrl + V</strong> to paste</li>
+          <li>Set it as the default for <strong>New messages</strong> and <strong>Replies &amp; forwards</strong></li>
+          <li>Click <strong>Save</strong></li>
+        </ol>
+      </div>
     </div>
   </div>
-  <div class="toast" id="toast">✓ HTML copied to clipboard!</div>
+  <div class="toast" id="toast">✓ Signature copied to clipboard!</div>
   <script>
-    const signatureHtml = ${escaped};
-    function copyHtml() {
-      navigator.clipboard.writeText(signatureHtml).then(showToast).catch(() => {
-        const ta = document.createElement('textarea');
-        ta.value = signatureHtml;
-        ta.style.cssText = 'position:fixed;opacity:0';
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
+    async function copySignature() {
+      const preview = document.getElementById('sig-preview');
+      const btn = document.getElementById('copyBtn');
+
+      try {
+        // Use the Clipboard API to copy rich content (HTML + text with images)
+        // This preserves formatting and the profile photo when pasting into Outlook
+        const htmlContent = preview.innerHTML;
+        const textContent = preview.innerText;
+
+        const clipboardItem = new ClipboardItem({
+          'text/html': new Blob([htmlContent], { type: 'text/html' }),
+          'text/plain': new Blob([textContent], { type: 'text/plain' }),
+        });
+
+        await navigator.clipboard.write([clipboardItem]);
         showToast();
-      });
+        btn.textContent = '✓ Copied!';
+        btn.className = 'btn btn-success';
+        setTimeout(() => {
+          btn.innerHTML = '📋 Copy to Clipboard';
+          btn.className = 'btn btn-primary';
+        }, 2500);
+
+      } catch (err) {
+        // Fallback: select the signature element so user can manually copy
+        console.warn('Clipboard API not available, falling back to selection:', err);
+        const range = document.createRange();
+        range.selectNodeContents(preview);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        btn.textContent = '✓ Selected — press Ctrl+C to copy';
+        btn.className = 'btn btn-success';
+        setTimeout(() => {
+          btn.innerHTML = '📋 Copy to Clipboard';
+          btn.className = 'btn btn-primary';
+        }, 3000);
+      }
     }
+
     function showToast() {
       const t = document.getElementById('toast');
       t.classList.add('show');
