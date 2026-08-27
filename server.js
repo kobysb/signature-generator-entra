@@ -270,6 +270,7 @@ app.get("/signature/:id", async (req, res) => {
       "{{COMPANY_WEBSITE}}": process.env.COMPANY_WEBSITE || "#",
       "{{ACCENT_COLOR}}":    process.env.SIGNATURE_ACCENT_COLOR || "#500000",
       "{{YEAR}}":            new Date().getFullYear().toString(),
+      "{{MEETING_BUTTON_ROW}}": buildMeetingButtonRow(req.query.meetingLink),
     };
 
     for (const [placeholder, value] of Object.entries(replacements)) {
@@ -295,6 +296,22 @@ app.get("/signature/:id", async (req, res) => {
 // ─────────────────────────────────────────────
 // Helper: Format phone number for display
 // ─────────────────────────────────────────────
+
+function escAttr(str) {
+  return str.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function buildMeetingButtonRow(rawLink) {
+  if (!rawLink || !/^https?:\/\//i.test(rawLink)) return "";
+
+  return `
+    <tr>
+      <td style="vertical-align:top;padding:0px 7px 0px 0px;width:1px">&nbsp;</td>
+      <td style="padding:0px 0px 0px 10px;font-family:'segoe ui','frutiger','dejavu sans','helvetica neue','arial',sans-serif;font-size:13px;color:#500000;width:488px">
+        <a href="${escAttr(rawLink)}" style="display:inline-block;padding:10px 18px;background:#500000;color:#ffffff;text-decoration:none;border-radius:4px;font-weight:bold;font-size:13px;">Book a meeting with me</a>
+      </td>
+    </tr>`;
+}
 
 function formatPhoneNumber(raw) {
   const digits = raw.replace(/\D/g, "");

@@ -394,6 +394,97 @@
     }
     .field-value.empty { color: var(--text-faint); font-style: italic; font-family: 'DM Sans', sans-serif; }
 
+    /* Meeting link toggle */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .toggle-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      transition: background 0.15s;
+    }
+    .toggle-slider::before {
+      content: "";
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      left: 2px;
+      top: 2px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.15s;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+    .toggle-switch input:checked + .toggle-slider {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .toggle-switch input:checked + .toggle-slider::before {
+      transform: translateX(18px);
+    }
+
+    .meeting-link-box {
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 16px;
+    }
+    .meeting-link-box.visible { display: flex; }
+
+    .meeting-link-box label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    #meetingLinkInput {
+      width: 100%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    #meetingLinkInput:focus { border-color: var(--accent); }
+    #meetingLinkInput::placeholder { color: var(--text-faint); }
+
+    .meeting-link-error {
+      font-size: 12px;
+      color: var(--red);
+      display: none;
+    }
+    .meeting-link-error.visible { display: block; }
+
     /* Generate button */
     .generate-btn {
       width: 100%;
@@ -551,6 +642,24 @@
         </div>
       </div>
 
+      <!-- Meeting link card -->
+      <div class="card">
+        <div class="card-body">
+          <div class="toggle-row">
+            <span class="toggle-label">Add a "Book a meeting" button</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="meetingLinkToggle" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="meeting-link-box" id="meetingLinkBox">
+            <label for="meetingLinkInput">HubSpot meeting link</label>
+            <input type="text" id="meetingLinkInput" placeholder="https://meetings.hubspot.com/yourname" />
+            <span class="meeting-link-error" id="meetingLinkError">Enter a valid link starting with http:// or https://</span>
+          </div>
+        </div>
+      </div>
+
       <!-- Generate button -->
       <button class="generate-btn" id="generateBtn" disabled>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -586,6 +695,10 @@
   const $detailCard = document.getElementById('detailCard');
   const $errBanner  = document.getElementById('errorBanner');
   const $genBtn     = document.getElementById('generateBtn');
+  const $meetingToggle = document.getElementById('meetingLinkToggle');
+  const $meetingBox    = document.getElementById('meetingLinkBox');
+  const $meetingInput  = document.getElementById('meetingLinkInput');
+  const $meetingError  = document.getElementById('meetingLinkError');
 
   // ─────────────────────────────────────────────
   // Boot
@@ -749,12 +862,39 @@
   });
 
   // ─────────────────────────────────────────────
+  // Meeting link toggle
+  // ─────────────────────────────────────────────
+
+  $meetingToggle.addEventListener('change', () => {
+    $meetingBox.classList.toggle('visible', $meetingToggle.checked);
+    $meetingError.classList.remove('visible');
+  });
+
+  function isValidMeetingLink(value) {
+    return /^https?:\/\/.+/i.test(value.trim());
+  }
+
+  // ─────────────────────────────────────────────
   // Generate button
   // ─────────────────────────────────────────────
 
   $genBtn.addEventListener('click', () => {
     if (!selectedEmployee) return;
-    window.open(`/signature/${selectedEmployee.id}`, '_blank');
+
+    let url = `/signature/${selectedEmployee.id}`;
+
+    if ($meetingToggle.checked) {
+      const link = $meetingInput.value.trim();
+      if (!isValidMeetingLink(link)) {
+        $meetingError.classList.add('visible');
+        $meetingInput.focus();
+        return;
+      }
+      $meetingError.classList.remove('visible');
+      url += `?meetingLink=${encodeURIComponent(link)}`;
+    }
+
+    window.open(url, '_blank');
   });
 
   // ─────────────────────────────────────────────

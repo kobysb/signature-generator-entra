@@ -11,6 +11,7 @@
     {{EMAIL_ADDRESS}}   → e.g. "jane@wirestar.net"
     {{PHONE_NUMBER}}    → e.g. "(979) 555-1234"  (direct/cell from Rippling)
     {{PHOTO_SRC}}       → base64 data URI of profile photo
+    {{MEETING_BUTTON_ROW}} → optional full <tr> with "Book a meeting" button, or "" if not requested
   ─────────────────────────────────────────────────────────────────────────────
 -->
 
@@ -85,6 +86,8 @@
 
       </td>
     </tr>
+
+    {{MEETING_BUTTON_ROW}}
 
     <!-- Social icons row -->
     <tr>
