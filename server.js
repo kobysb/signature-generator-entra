@@ -306,8 +306,7 @@ function buildMeetingButtonRow(rawLink) {
 
   return `
     <tr>
-      <td style="vertical-align:top;padding:0px 7px 0px 0px;width:1px">&nbsp;</td>
-      <td style="padding:0px 0px 0px 10px;font-family:'segoe ui','frutiger','dejavu sans','helvetica neue','arial',sans-serif;font-size:13px;color:#500000;width:488px">
+      <td style="padding:0px 0px 8px 0px">
         <a href="${escAttr(rawLink)}" style="display:inline-block;padding:10px 18px;background:#500000;color:#ffffff;text-decoration:none;border-radius:4px;font-weight:bold;font-size:13px;">Book a meeting with me</a>
       </td>
     </tr>`;
